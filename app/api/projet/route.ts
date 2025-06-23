@@ -1,29 +1,25 @@
 import { prisma } from '@/lib/prisma'
+import { NextRequest } from 'next/server'
 
-function genererCodeProjet(): string {
-  const lettres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-  return Array.from({ length: 6 }, () =>
-    lettres.charAt(Math.floor(Math.random() * lettres.length))
-  ).join('')
-}
-
-export async function POST(request: Request) {
+export async function GET(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { nom } = body
+    const url = new URL(request.url)
+    const pathSegments = url.pathname.split('/')
+    const code = pathSegments[pathSegments.length - 1]
 
-    if (!nom || nom.trim() === '') {
-      return new Response(JSON.stringify({ erreur: 'Nom de projet requis' }), { status: 400 })
-    }
-
-    const projet = await prisma.projet.create({
-      data: {
-        nom,
-        code: genererCodeProjet(),
+    const projet = await prisma.projet.findUnique({
+      where: { code },
+      include: {
+        sprints: true,
+        participants: true,
       },
     })
 
-    return new Response(JSON.stringify(projet), { status: 201 })
+    if (!projet) {
+      return new Response(JSON.stringify({ erreur: 'Projet non trouvé' }), { status: 404 })
+    }
+
+    return new Response(JSON.stringify(projet), { status: 200 })
   } catch (err) {
     console.error(err)
     return new Response(JSON.stringify({ erreur: 'Erreur serveur' }), { status: 500 })
