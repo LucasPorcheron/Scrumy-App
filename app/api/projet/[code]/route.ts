@@ -3,9 +3,8 @@ import { NextRequest } from 'next/server'
 
 export async function GET(request: NextRequest) {
   try {
-    const url = new URL(request.url)
-    const pathSegments = url.pathname.split('/')
-    const code = pathSegments[pathSegments.length - 1]
+    const pathname = request.nextUrl.pathname
+    const code = pathname.split('/').pop() as string
 
     const projet = await prisma.projet.findUnique({
       where: { code },
