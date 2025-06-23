@@ -1,9 +1,14 @@
 import { prisma } from '@/lib/prisma'
+import { NextRequest } from 'next/server'
 
-export async function GET(request: Request, { params }: { params: { code: string } }) {
+export async function GET(request: NextRequest) {
   try {
+    const url = new URL(request.url)
+    const pathSegments = url.pathname.split('/')
+    const code = pathSegments[pathSegments.length - 1]
+
     const projet = await prisma.projet.findUnique({
-      where: { code: params.code },
+      where: { code },
       include: {
         sprints: true,
         participants: true,
