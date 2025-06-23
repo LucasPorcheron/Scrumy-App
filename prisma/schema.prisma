@@ -1,15 +1,100 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../app/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model Projet {
+  id            String         @id @default(uuid())
+  nom           String
+  code          String         @unique
+  creeLe        DateTime       @default(now())
+  stories       Story[]
+  sprints       Sprint[]
+  participants  Participant[]
+}
+
+model Participant {
+  id           String        @id @default(uuid())
+  pseudo       String        @unique
+  roles        Role[]
+  banni        Boolean       @default(false)
+  projet       Projet        @relation(fields: [projetId], references: [id])
+  projetId     String
+  entreesDaily DailyEntry[]  
+}
+
+
+enum Role {
+  DEV
+  PO
+  SM
+  CP
+}
+
+model Story {
+  id            String         @id @default(uuid())
+  titre         String
+  description   String
+  effort        Int
+  priorite      Priorite
+  projet        Projet         @relation(fields: [projetId], references: [id])
+  projetId      String
+  sprint        Sprint?        @relation(fields: [sprintId], references: [id])
+  sprintId      String?
+  terminee      Boolean        @default(false)
+  resteAFaire   Int
+  entreesDaily  DailyEntry[]   
+}
+
+
+enum Priorite {
+  MUST
+  SHOULD
+  COULD
+  WOULD
+}
+
+model Sprint {
+  id          String       @id @default(uuid())
+  titre       String
+  description String
+  debut       DateTime
+  fin         DateTime
+  projet      Projet       @relation(fields: [projetId], references: [id])
+  projetId    String
+  stories     Story[]
+  dailys      Daily[]
+  capacite    Int          // En v1 : champ manuel
+}
+
+model Daily {
+  id        String       @id @default(uuid())
+  date      DateTime     @default(now())
+  sprint    Sprint       @relation(fields: [sprintId], references: [id])
+  sprintId  String
+  entrees   DailyEntry[]
+}
+
+model DailyEntry {
+  id             String       @id @default(uuid())
+  participant    Participant  @relation(fields: [participantId], references: [id])
+  participantId  String
+  story          Story        @relation(fields: [storyId], references: [id])
+  storyId        String
+  productivite   Int
+  alea           String       // Ex: "maladie", "bonus", etc.
+  typeQCM        TypeQCM
+  scoreQCM       Int
+  daily          Daily        @relation(fields: [dailyId], references: [id])
+  dailyId        String
+}
+
+enum TypeQCM {
+  CARRE
+  DUO
+  CASH
 }
