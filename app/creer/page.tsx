@@ -9,7 +9,7 @@ export default function CreerProjet() {
   const router = useRouter()
 
   async function creerProjet() {
-    setErreur('') // reset erreur
+    setErreur('')
     try {
       const res = await fetch('/api/projet', {
         method: 'POST',
@@ -24,8 +24,6 @@ export default function CreerProjet() {
       }
 
       const projet = await res.json()
-
-      // Redirection vers /projet/[code]
       router.push(`/projet/${projet.code}`)
     } catch (err) {
       console.error(err)
@@ -36,7 +34,6 @@ export default function CreerProjet() {
   return (
     <div className="p-4">
       <h1 className="text-xl font-bold mb-4">Créer un projet</h1>
-
       <input
         type="text"
         placeholder="Nom du projet"
@@ -44,14 +41,12 @@ export default function CreerProjet() {
         onChange={(e) => setNom(e.target.value)}
         className="border p-2 mb-4 block w-full"
       />
-
       <button
         onClick={creerProjet}
         className="bg-blue-500 text-white px-4 py-2 rounded"
       >
         Créer
       </button>
-
       {erreur && <p className="text-red-500 mt-4">{erreur}</p>}
     </div>
   )
