@@ -9,18 +9,33 @@ export async function POST(req: Request) {
   }
 
   const projet = await prisma.projet.findUnique({ where: { code } })
-
   if (!projet) {
     return new Response(JSON.stringify({ erreur: 'Projet introuvable' }), { status: 404 })
   }
 
-  const nouveau = await prisma.participant.create({
-    data: {
-      pseudo,
-      projetId: projet.id,
-      roles: ['DEV'], // par défaut
-    },
-  })
+  try {
+    // Vérifie si le participant existe déjà dans ce projet
+    let participant = await prisma.participant.findFirst({
+      where: {
+        pseudo,
+        projetId: projet.id,
+      },
+    })
 
-  return new Response(JSON.stringify({ ...nouveau, projetCode: code }), { status: 201 })
+    // S'il n'existe pas, on le crée
+    if (!participant) {
+      participant = await prisma.participant.create({
+        data: {
+          pseudo,
+          projetId: projet.id,
+          roles: ['DEV'], // rôle par défaut
+        },
+      })
+    }
+
+    return new Response(JSON.stringify({ ...participant, projetCode: code }), { status: 200 })
+  } catch (error) {
+    console.error('Erreur rejoindre projet :', error)
+    return new Response(JSON.stringify({ erreur: 'Erreur serveur' }), { status: 500 })
+  }
 }

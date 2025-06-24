@@ -122,7 +122,7 @@ export default function ProjetPage() {
                       onChange={() => toggleBanni(p.id)}
                       className="mr-1"
                     />
-                    Banni
+                    Bannir
                   </label>
                   <button
                     onClick={() => saveRoles(p)}
