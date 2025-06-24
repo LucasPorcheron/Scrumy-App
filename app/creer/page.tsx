@@ -25,27 +25,25 @@ export default function CreerProjet() {
 
       const projet = await res.json()
       router.push(`/projet/${projet.code}`)
-    } catch (err) {
-      console.error(err)
+    } catch {
       setErreur('Erreur lors de la création du projet')
     }
   }
 
   return (
-    <div className="p-4">
+    <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md">
       <h1 className="text-xl font-bold mb-4">Créer un projet</h1>
       <input
-        type="text"
         placeholder="Nom du projet"
         value={nom}
         onChange={(e) => setNom(e.target.value)}
-        className="border p-2 mb-4 block w-full"
+        className="border p-2 block w-full mb-4 rounded"
       />
       <button
         onClick={creerProjet}
-        className="bg-blue-500 text-white px-4 py-2 rounded"
+        className="bg-blue-600 text-white px-4 py-2 rounded w-full"
       >
-        Créer
+        ➕ Créer
       </button>
       {erreur && <p className="text-red-500 mt-4">{erreur}</p>}
     </div>

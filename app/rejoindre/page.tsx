@@ -33,25 +33,25 @@ export default function RejoindrePage() {
   }
 
   return (
-    <div className="p-4">
+    <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md">
       <h1 className="text-xl font-bold mb-4">Rejoindre un projet</h1>
       <input
         placeholder="Code du projet"
         value={code}
         onChange={(e) => setCode(e.target.value)}
-        className="border p-2 block w-full mb-4"
+        className="border p-2 block w-full mb-4 rounded"
       />
       <input
         placeholder="Ton pseudo"
         value={pseudo}
         onChange={(e) => setPseudo(e.target.value)}
-        className="border p-2 block w-full mb-4"
+        className="border p-2 block w-full mb-4 rounded"
       />
       <button
         onClick={rejoindreProjet}
-        className="bg-green-600 text-white px-4 py-2 rounded"
+        className="bg-green-600 text-white px-4 py-2 rounded w-full"
       >
-        Rejoindre
+        👥 Rejoindre
       </button>
       {erreur && <p className="text-red-500 mt-4">{erreur}</p>}
     </div>
