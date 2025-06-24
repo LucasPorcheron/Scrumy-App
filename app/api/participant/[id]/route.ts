@@ -1,29 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-// 🔁 PATCH pour modifier les rôles et banni
-export async function PATCH(req: NextRequest, context: { params: { id: string } }) {
-  const { roles, banni } = await req.json()
-  const id = context.params.id
+// PATCH : modifier les rôles et banni
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+  const id = params.id
+  const body = await request.json()
 
   const updated = await prisma.participant.update({
     where: { id },
-    data: { roles, banni },
+    data: {
+      roles: body.roles,
+      banni: body.banni,
+    },
   })
 
   return NextResponse.json(updated)
 }
 
-// ❌ DELETE pour supprimer un participant
-export async function DELETE(req: NextRequest, context: { params: { id: string } }) {
-  const id = context.params.id
+// DELETE : supprimer un participant
+export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
+  const id = params.id
 
-  try {
-    await prisma.participant.delete({
-      where: { id },
-    })
-    return NextResponse.json({ message: 'Participant supprimé' }, { status: 204 })
-  } catch (error) {
-    return NextResponse.json({ erreur: 'Erreur lors de la suppression' }, { status: 500 })
-  }
+  await prisma.participant.delete({
+    where: { id },
+  })
+
+  return NextResponse.json({ success: true }, { status: 204 })
 }
