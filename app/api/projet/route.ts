@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { Role } from '@prisma/client'
 
 export async function POST(req: Request) {
   const body = await req.json()
@@ -10,20 +11,25 @@ export async function POST(req: Request) {
 
   const code = Math.random().toString(36).substring(2, 8).toUpperCase()
 
-  const projet = await prisma.projet.create({
-    data: {
-      nom,
-      code,
-    },
-  })
+  try {
+    const projet = await prisma.projet.create({
+      data: {
+        nom,
+        code,
+      },
+    })
 
-  await prisma.participant.create({
-    data: {
-      pseudo,
-      projetId: projet.id,
-      roles: ['CP'], // ou 'PO' selon ce que tu veux
-    },
-  })
+    await prisma.participant.create({
+      data: {
+        pseudo,
+        projetId: projet.id,
+        roles: [Role.CP], // enum utilisé ici
+      },
+    })
 
-  return new Response(JSON.stringify(projet), { status: 201 })
+    return new Response(JSON.stringify(projet), { status: 201 })
+  } catch (error) {
+    console.error('Erreur création projet:', error)
+    return new Response(JSON.stringify({ erreur: 'Erreur serveur lors de la création' }), { status: 500 })
+  }
 }
