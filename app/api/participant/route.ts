@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     data: {
       pseudo,
       projetId: projet.id,
-      roles: ['dev'], // par défaut
+      roles: ['DEV'], // par défaut
     },
   })
 
