@@ -5,6 +5,7 @@ import { useState } from 'react'
 
 export default function CreerProjet() {
   const [nom, setNom] = useState('')
+  const [pseudo, setPseudo] = useState('')
   const [erreur, setErreur] = useState('')
   const router = useRouter()
 
@@ -14,7 +15,7 @@ export default function CreerProjet() {
       const res = await fetch('/api/projet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nom }),
+        body: JSON.stringify({ nom, pseudo }),
       })
 
       if (!res.ok) {
@@ -24,6 +25,7 @@ export default function CreerProjet() {
       }
 
       const projet = await res.json()
+      localStorage.setItem('pseudo', pseudo)
       router.push(`/projet/${projet.code}`)
     } catch {
       setErreur('Erreur lors de la création du projet')
@@ -33,18 +35,28 @@ export default function CreerProjet() {
   return (
     <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md">
       <h1 className="text-xl font-bold mb-4">Créer un projet</h1>
+
       <input
         placeholder="Nom du projet"
         value={nom}
         onChange={(e) => setNom(e.target.value)}
         className="border p-2 block w-full mb-4 rounded"
       />
+
+      <input
+        placeholder="Ton pseudo"
+        value={pseudo}
+        onChange={(e) => setPseudo(e.target.value)}
+        className="border p-2 block w-full mb-4 rounded"
+      />
+
       <button
         onClick={creerProjet}
         className="bg-blue-600 text-white px-4 py-2 rounded w-full"
       >
         ➕ Créer
       </button>
+
       {erreur && <p className="text-red-500 mt-4">{erreur}</p>}
     </div>
   )

@@ -25,6 +25,7 @@ export default function RejoindrePage() {
       }
 
       const participant = await res.json()
+      localStorage.setItem('pseudo', pseudo)
       router.push(`/projet/${participant.projetCode}`)
     } catch (err) {
       console.error(err)
