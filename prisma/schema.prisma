@@ -19,13 +19,16 @@ model Projet {
 
 model Participant {
   id           String        @id @default(uuid())
-  pseudo       String        @unique
+  pseudo       String
   roles        Role[]
   banni        Boolean       @default(false)
   projet       Projet        @relation(fields: [projetId], references: [id])
   projetId     String
-  entreesDaily DailyEntry[]  
+  entreesDaily DailyEntry[]
+
+  @@unique([pseudo, projetId]) // ← autorise "Lucas" dans plusieurs projets
 }
+
 
 
 enum Role {
