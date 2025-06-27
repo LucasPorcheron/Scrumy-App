@@ -10,6 +10,13 @@ export default function ProjetPage() {
   const [projet, setProjet] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [erreur, setErreur] = useState('')
+  const [nouvelleStory, setNouvelleStory] = useState({
+    titre: '',
+    description: '',
+    effort: 1,
+    priorite: 'MUST',
+  })
+  
   const [pseudo, setPseudo] = useState<string | null>(null)
 
   useEffect(() => {
@@ -82,6 +89,32 @@ export default function ProjetPage() {
     }))
   }
 
+  const ajouterStory = async () => {
+    if (!nouvelleStory.titre || !nouvelleStory.description) return
+  
+    try {
+      const res = await fetch('/api/story', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...nouvelleStory, projetId: projet.id }),
+      })
+  
+      if (!res.ok) throw new Error('Erreur ajout story')
+  
+      const nouvelle = await res.json()
+      setProjet((prev: any) => ({
+        ...prev,
+        stories: [...(prev.stories || []), nouvelle],
+      }))
+  
+      setNouvelleStory({ titre: '', description: '', effort: 1, priorite: 'MUST' })
+    } catch (err) {
+      console.error(err)
+      setErreur("Erreur lors de l'ajout de la story")
+    }
+  }
+  
+
   if (loading) return <p>Chargement...</p>
   if (erreur) return <p className="text-red-500">{erreur}</p>
   if (!projet) return <p>Projet introuvable.</p>
@@ -148,19 +181,62 @@ export default function ProjetPage() {
       ) : (
         <p>Aucun participant</p>
       )}
+<h2 className="text-lg font-semibold mt-8">📚 Stories :</h2>
+<ul className="list-disc list-inside mb-6">
+  {projet.stories?.length > 0 ? (
+    projet.stories.map((s: any) => (
+      <li key={s.id}>
+        <strong>{s.titre}</strong> ({s.effort} pts, {s.priorite})
+        <p className="text-sm text-gray-600">{s.description}</p>
+      </li>
+    ))
+  ) : (
+    <li>Aucune story pour le moment</li>
+  )}
+</ul>
 
-      <h2 className="text-lg font-semibold mt-4">Sprints :</h2>
-      <ul className="list-disc list-inside">
-        {projet.sprints.length > 0 ? (
-          projet.sprints.map((s: any) => (
-            <li key={s.id}>
-              {s.titre} — du {new Date(s.debut).toLocaleDateString()} au {new Date(s.fin).toLocaleDateString()}
-            </li>
-          ))
-        ) : (
-          <li>Aucun sprint pour le moment</li>
-        )}
-      </ul>
+{estCP && (
+  <div className="border-t pt-4 mt-6">
+    <h3 className="text-md font-semibold mb-2">➕ Ajouter une Story</h3>
+    <input
+      placeholder="Titre"
+      className="border p-2 block w-full mb-2 rounded"
+      value={nouvelleStory.titre}
+      onChange={(e) => setNouvelleStory({ ...nouvelleStory, titre: e.target.value })}
+    />
+    <textarea
+      placeholder="Description"
+      className="border p-2 block w-full mb-2 rounded"
+      value={nouvelleStory.description}
+      onChange={(e) => setNouvelleStory({ ...nouvelleStory, description: e.target.value })}
+    />
+    <input
+      type="number"
+      placeholder="Effort"
+      className="border p-2 block w-full mb-2 rounded"
+      value={nouvelleStory.effort}
+      onChange={(e) => setNouvelleStory({ ...nouvelleStory, effort: parseInt(e.target.value) })}
+    />
+    <select
+      className="border p-2 block w-full mb-4 rounded"
+      value={nouvelleStory.priorite}
+      onChange={(e) => setNouvelleStory({ ...nouvelleStory, priorite: e.target.value })}
+    >
+      <option value="MUST">MUST</option>
+      <option value="SHOULD">SHOULD</option>
+      <option value="COULD">COULD</option>
+      <option value="WOULD">WOULD</option>
+    </select>
+    <button
+      onClick={ajouterStory}
+      className="bg-purple-600 text-white px-4 py-2 rounded w-full"
+    >
+      Ajouter la Story
+    </button>
+  </div>
+)}
+
+      
     </div>
   )
 }
