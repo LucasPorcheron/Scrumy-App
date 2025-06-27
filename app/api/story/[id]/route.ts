@@ -1,13 +1,15 @@
-import { prisma } from '@/lib/prisma'
 import { NextRequest } from 'next/server'
+import { prisma } from '@/lib/prisma'
 
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: { id: string } }
 ) {
+  const id = context.params.id
+
   try {
     await prisma.story.delete({
-      where: { id: params.id },
+      where: { id },
     })
     return new Response(null, { status: 204 })
   } catch (err) {
