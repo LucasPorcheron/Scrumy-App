@@ -113,6 +113,40 @@ export default function ProjetPage() {
       setErreur("Erreur lors de l'ajout de la story")
     }
   }
+  const toggleTerminee = async (id: string, actuel: boolean) => {
+    try {
+      const res = await fetch(`/api/story/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ terminee: !actuel }),
+      })
+  
+      if (!res.ok) throw new Error()
+  
+      setProjet((prev: any) => ({
+        ...prev,
+        stories: prev.stories.map((s: any) =>
+          s.id === id ? { ...s, terminee: !actuel } : s
+        ),
+      }))
+    } catch (err) {
+      console.error('Erreur toggle terminee', err)
+    }
+  }
+  
+  const supprimerStory = async (id: string) => {
+    try {
+      await fetch(`/api/story/${id}`, {
+        method: 'DELETE',
+      })
+      setProjet((prev: any) => ({
+        ...prev,
+        stories: prev.stories.filter((s: any) => s.id !== id),
+      }))
+    } catch (err) {
+      console.error('Erreur suppression story', err)
+    }
+  }
   
 
   if (loading) return <p>Chargement...</p>
@@ -148,15 +182,6 @@ export default function ProjetPage() {
                       {role}
                     </label>
                   ))}
-                  <label className="text-sm">
-                    <input
-                      type="checkbox"
-                      checked={p.banni}
-                      onChange={() => toggleBanni(p.id)}
-                      className="mr-1"
-                    />
-                    Bannir
-                  </label>
                   <button
                     onClick={() => saveRoles(p)}
                     className="px-2 py-1 text-sm bg-blue-600 text-white rounded"
@@ -185,10 +210,36 @@ export default function ProjetPage() {
 <ul className="list-disc list-inside mb-6">
   {projet.stories?.length > 0 ? (
     projet.stories.map((s: any) => (
-      <li key={s.id}>
-        <strong>{s.titre}</strong> ({s.effort} pts, {s.priorite})
-        <p className="text-sm text-gray-600">{s.description}</p>
-      </li>
+      <li key={s.id} className="flex justify-between items-start gap-2">
+  <div className={`flex-1 ${s.terminee ? 'opacity-60 line-through' : ''}`}>
+    <strong>{s.titre}</strong> ({s.effort} pts, {s.priorite})
+    <p className="text-sm text-gray-600">{s.description}</p>
+  </div>
+
+  <div className="flex flex-col items-end gap-1">
+    {estCP && (
+      <>
+        <label className="text-sm">
+          <input
+            type="checkbox"
+            checked={s.terminee}
+            onChange={() => toggleTerminee(s.id, s.terminee)}
+            className="mr-1"
+          />
+          Terminée
+        </label>
+        <button
+          onClick={() => supprimerStory(s.id)}
+          className="text-red-600 hover:underline text-sm"
+        >
+          🗑️
+        </button>
+      </>
+    )}
+  </div>
+</li>
+
+
     ))
   ) : (
     <li>Aucune story pour le moment</li>

@@ -11,8 +11,10 @@ export async function GET(request: NextRequest) {
       include: {
         sprints: true,
         participants: true,
+        stories: true,
       },
     })
+    
 
     if (!projet) {
       return new Response(JSON.stringify({ erreur: 'Projet non trouvé' }), { status: 404 })
