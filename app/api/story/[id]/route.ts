@@ -1,9 +1,9 @@
 import { prisma } from '@/lib/prisma'
 import { NextRequest } from 'next/server'
 
-// ✅ Pour DELETE
-export async function DELETE(_: NextRequest, context: { params: { id: string } }) {
-  const { id } = context.params
+// ✅ CORRECT : DELETE avec "context" pour accéder aux params
+export async function DELETE(req: NextRequest, context: { params: { id: string } }) {
+  const id = context.params.id
 
   if (!id) {
     return new Response(JSON.stringify({ erreur: 'ID requis' }), { status: 400 })
@@ -18,9 +18,9 @@ export async function DELETE(_: NextRequest, context: { params: { id: string } }
   }
 }
 
-// ✅ Pour PATCH
+// ✅ PATCH aussi (optionnel ici)
 export async function PATCH(req: NextRequest, context: { params: { id: string } }) {
-  const { id } = context.params
+  const id = context.params.id
   const body = await req.json()
   const { terminee } = body
 
