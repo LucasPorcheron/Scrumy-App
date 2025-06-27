@@ -1,41 +1,54 @@
 'use client'
 
+// Import des dépendances nécessaires
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 
+// Définition des rôles possibles dans le projet
 type Role = 'CP' | 'PO' | 'SM' | 'DEV'
 
+// Composant principal pour afficher un projet
 export default function ProjetPage() {
+  // Récupération du code du projet depuis l'URL
   const { code } = useParams()
+  // États pour gérer les données du projet
   const [projet, setProjet] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [erreur, setErreur] = useState('')
+  // État pour la création d'une nouvelle story
   const [nouvelleStory, setNouvelleStory] = useState({
     titre: '',
     description: '',
     effort: 1,
     priorite: 'MUST',
   })
-  
+  // État pour le pseudo de l'utilisateur
   const [pseudo, setPseudo] = useState<string | null>(null)
 
+  // Hook pour charger le pseudo depuis le localStorage
   useEffect(() => {
     setPseudo(localStorage.getItem('pseudo'))
   }, [])
 
+  // Hook pour charger les données du projet
   useEffect(() => {
     if (!code) return
 
+    // Fonction asynchrone pour charger les données du projet
     async function fetchProjet() {
       try {
+        // Appel à l'API pour récupérer les données du projet
         const res = await fetch(`/api/projet/${code}`)
         if (!res.ok) throw new Error('Projet non trouvé')
         const data = await res.json()
+        // Mise à jour de l'état avec les données du projet
         setProjet(data)
       } catch (err) {
-        console.error(err)
+        // Gestion des erreurs
+        console.error('Erreur lors du chargement du projet :', err)
         setErreur('Erreur lors du chargement du projet')
       } finally {
+        // Fin du chargement
         setLoading(false)
       }
     }
@@ -43,42 +56,7 @@ export default function ProjetPage() {
     fetchProjet()
   }, [code])
 
-  const moi = projet?.participants.find((p: any) => p.pseudo === pseudo)
-  const estCP = moi?.roles.includes('CP')
-
-  const toggleRole = (participantId: string, role: Role) => {
-    setProjet((prev: any) => ({
-      ...prev,
-      participants: prev.participants.map((p: any) =>
-        p.id === participantId
-          ? {
-              ...p,
-              roles: p.roles.includes(role)
-                ? p.roles.filter((r: string) => r !== role)
-                : [...p.roles, role],
-            }
-          : p
-      ),
-    }))
-  }
-
-  const toggleBanni = (participantId: string) => {
-    setProjet((prev: any) => ({
-      ...prev,
-      participants: prev.participants.map((p: any) =>
-        p.id === participantId ? { ...p, banni: !p.banni } : p
-      ),
-    }))
-  }
-
-  const saveRoles = async (participant: any) => {
-    await fetch(`/api/participant/${participant.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ roles: participant.roles, banni: participant.banni }),
-    })
-  }
-
+  // Fonction pour supprimer un participant du projet
   const supprimerParticipant = async (id: string) => {
     await fetch(`/api/participant/${id}`, {
       method: 'DELETE',
