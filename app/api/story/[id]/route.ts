@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/prisma'
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+import { NextRequest } from 'next/server'
+
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   const { id } = params
 
   if (!id) {
@@ -15,7 +17,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     return new Response(JSON.stringify({ erreur: 'Erreur lors de la suppression' }), { status: 500 })
   }
 }
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
     const { id } = params
     const body = await req.json()
     const { terminee } = body
